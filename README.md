@@ -1,4 +1,4 @@
-# dependency-analysis README
+# dependency-analysis-extension
 
 This is the README for your extension "dependency-analysis". After writing up a brief description, we recommend including the following sections.
 
