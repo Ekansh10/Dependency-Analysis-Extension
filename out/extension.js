@@ -25,30 +25,26 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.activate = activate;
 exports.deactivate = deactivate;
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
 const vscode = __importStar(require("vscode"));
-const projectDetector_1 = require("./projectTypes/projectDetector");
+const register_sidebar_1 = require("./views/register-sidebar");
+const selectFolder_1 = require("./projectTypes/selectFolder");
 function activate(context) {
-    console.log('Congratulations, your extension "dependency-analysis" is now active!');
-    const disposable = vscode.commands.registerCommand('dependency-analysis.dependency-analysis', async () => {
-        // vscode.window.showInformationMessage('Hello from Dependency Analysis!');
-        const selectedFolder = await vscode.window.showOpenDialog({
-            canSelectFiles: false,
-            canSelectFolders: true,
-            canSelectMany: false,
-            openLabel: 'Select Folder'
-        });
-        if (!selectedFolder || selectedFolder.length == 0) {
-            vscode.window.showErrorMessage('No folder selected');
-            return;
+    const op = vscode.window.createOutputChannel('Dependency Analysis');
+    // Register the web view provider
+    (0, register_sidebar_1.registerWebViewProvider)(context, op);
+    // Register the command that will be called from the webview
+    const startCommand = vscode.commands.registerCommand('selectRootProject', async (flag) => {
+        if (flag) {
+            // Implement your logic here when the start button is clicked
+            console.log('Start action logic implemented.');
+            // Call the function to select the root folder
+            await (0, selectFolder_1.selectRootFolder)();
         }
-        const rootFolder = selectedFolder[0].fsPath;
-        vscode.window.showInformationMessage(`selected folder: ${rootFolder}`);
-        (0, projectDetector_1.projectDetector)(rootFolder);
     });
-    context.subscriptions.push(disposable);
+    // Add the command to context subscriptions for proper cleanup
+    context.subscriptions.push(startCommand);
 }
-// This method is called when your extension is deactivated
-function deactivate() { }
+function deactivate() {
+    // Cleanup if necessary
+}
 //# sourceMappingURL=extension.js.map

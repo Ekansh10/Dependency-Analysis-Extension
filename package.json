@@ -9,13 +9,45 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "onCommand:selectRootProject"
+  ],
   "main": "./out/extension.js",
   "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "dependencies",
+          "title": "Dependency Analysis",
+          "icon": "media/icon/dataflow.png"
+        }
+      ]
+    },
+    "views": {
+      "dependencies": [
+        {
+          "type": "webview",
+          "id": "dependencies-sidebar-panel",
+          "name": "Dependency Analysis"
+        }
+      ]
+    },
     "commands": [
       {
-        "command": "dependency-analysis.dependency-analysis",
-        "title": "Dependency Analysis"
+        "command": "selectRootProject",
+        "title": "Selecting Root Project"
+      },
+      {
+        "command": "startProjectDetector",
+        "title": "Project Detecting"
+      },
+      {
+        "command": "detectAndroidProject",
+        "title": "Detecting Android Project"
+      },
+      {
+        "command": "detectMavenProject",
+        "title": "Detecting Maven Project"
       }
     ]
   },
@@ -28,14 +60,17 @@
     "test": "vscode-test"
   },
   "devDependencies": {
-    "@types/vscode": "^1.93.0",
     "@types/mocha": "^10.0.8",
     "@types/node": "20.x",
+    "@types/vscode": "^1.93.0",
     "@typescript-eslint/eslint-plugin": "^8.7.0",
     "@typescript-eslint/parser": "^8.7.0",
-    "eslint": "^9.11.1",
-    "typescript": "^5.6.2",
     "@vscode/test-cli": "^0.0.10",
-    "@vscode/test-electron": "^2.4.1"
+    "@vscode/test-electron": "^2.4.1",
+    "eslint": "^9.11.1",
+    "typescript": "^5.6.2"
+  },
+  "dependencies": {
+    "dependency-analysis": "file:"
   }
 }

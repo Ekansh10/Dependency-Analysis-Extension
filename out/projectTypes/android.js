@@ -26,12 +26,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.isAndroidProject = isAndroidProject;
 const path = __importStar(require("path"));
 const fs = __importStar(require("fs"));
+const vscode = __importStar(require("vscode"));
 // this whill check if the droot folder has basic android files and folder structure
 //like build.gradle, src/main/java, src/main/res, src/main/AndroidManifest.xml
 function isAndroidProject(rootFolder) {
-    const isAndroidProject = fs.existsSync(path.join(rootFolder, 'build.gradle')) && fs.existsSync(path.join(rootFolder, 'app/src/main/AndroidManifest.xml'));
-    // fs.existsSync(path.join(rootFolder,'app/src/main/java'))&&
-    // fs.existsSync(path.join(rootFolder,'app/src/main/res'))
+    vscode.commands.executeCommand('detect android project');
+    const isAndroidProject = (fs.existsSync(path.join(rootFolder, 'build.gradle')) || fs.existsSync(path.join(rootFolder, 'build.gradle.kts'))) &&
+        fs.existsSync(path.join(rootFolder, 'app/src/main/AndroidManifest.xml'));
     return isAndroidProject;
 }
 //# sourceMappingURL=android.js.map

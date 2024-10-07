@@ -24,18 +24,26 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.projectDetector = projectDetector;
+const fs = __importStar(require("fs"));
+const path = __importStar(require("path"));
 const vscode = __importStar(require("vscode"));
-const android_1 = require("./android");
-const maven_1 = require("./maven");
-function projectDetector(rootFolder) {
-    if ((0, android_1.isAndroidProject)(rootFolder)) {
-        vscode.window.showInformationMessage('Android Project Detected');
-        return;
+function projectDetector(rootFolder, projectConfig) {
+    vscode.commands.executeCommand('start project detector');
+    for (const [projectType, { requiredFiles, matchAny }] of Object.entries(projectConfig)) {
+        let allFilesExist = false;
+        if (matchAny) {
+            // If matchAny is true, check if at least one of the required files exists
+            allFilesExist = requiredFiles.some((file) => fs.existsSync(path.join(rootFolder, file)));
+        }
+        else {
+            // If matchAny is false or not provided, check if all files exist
+            allFilesExist = requiredFiles.every((file) => fs.existsSync(path.join(rootFolder, file)));
+        }
+        if (allFilesExist) {
+            vscode.window.showInformationMessage(`This is a ${projectType} project.`);
+            return;
+        }
     }
-    if ((0, maven_1.isMavenProject)(rootFolder)) {
-        vscode.window.showInformationMessage('Maven Project Detected');
-        return;
-    }
-    vscode.window.showInformationMessage('Unknown Project Type');
+    vscode.window.showInformationMessage('Unknown project type.');
 }
 //# sourceMappingURL=projectDetector.js.map

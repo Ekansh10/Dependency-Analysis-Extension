@@ -26,7 +26,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.isMavenProject = isMavenProject;
 const path = __importStar(require("path"));
 const fs = __importStar(require("fs"));
+const vscode = __importStar(require("vscode"));
 function isMavenProject(rootFolder) {
+    vscode.commands.executeCommand('detect maven project');
     const isMaven = fs.existsSync(path.join(rootFolder, 'pom.xml'));
     return isMaven;
 }
