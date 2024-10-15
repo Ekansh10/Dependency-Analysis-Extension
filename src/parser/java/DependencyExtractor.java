@@ -1,122 +1,104 @@
-import java.io.*;
-import java.nio.file.*;
-import java.util.*;
-import java.util.concurrent.*;
-import java.util.regex.*;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import org.apache.commons.io.FileUtils;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;  
+import java.util.HashMap;   
+import java.util.HashSet;   
+import java.util.List;      
+import java.util.Map;       
 
 public class DependencyExtractor {
 
-    private static final ConcurrentHashMap<String, ClassInfo> resultMap = new ConcurrentHashMap<>();
-    private static final String LOG_FILE = "javap_output.log";
+    public static void main(String[] args) {
+        String directoryPath = "/path/to/class/file/folder"; // Change this to your directory path
+        Map<String, Object> dependenciesMap = new HashMap<>();
 
-    public static void main(String[] args) throws IOException, InterruptedException {
-        long startTime = System.currentTimeMillis(); //start time
+        try {
+            List<File> classFiles = (List<File>) FileUtils.listFiles(new File(directoryPath), new String[]{"class"}, true);
+            for (File classFile : classFiles) {
+                String className = getClassName(classFile, directoryPath);
+                List<String> dependencies = extractDependencies(classFile);
+                
+                // Only add the class to the map if it has dependencies
+                if (!dependencies.isEmpty()) {
+                    dependenciesMap.put(className, Map.of("dependencies", dependencies));
+                }
+            }
 
-        String folderPath = "/path/to/your/class/folder";  // Update this path
+            // Write prettified JSON output to a file
+            writeJsonToFile(dependenciesMap, "dependencies.json");
 
-        // Use a ForkJoinPool for efficient work-stealing
-        ForkJoinPool forkJoinPool = new ForkJoinPool();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
-        try (PrintWriter logWriter = new PrintWriter(new BufferedWriter(new FileWriter(LOG_FILE, true)))) {
+    private static List<String> extractDependencies(File classFile) throws IOException {
+        List<String> dependencies = new ArrayList<>();
+        ClassReader classReader = new ClassReader(FileUtils.readFileToByteArray(classFile));
 
-            // Gather tasks to process .class files
-            List<Callable<Void>> tasks = new ArrayList<>();
-            Files.walk(Paths.get(folderPath))
-                    .filter(Files::isRegularFile)
-                    .filter(path -> path.toString().endsWith(".class"))
-                    .forEach(path -> {
-                        tasks.add(() -> {
-                            System.out.println("Thread " + Thread.currentThread().getName() + " processing: " + path.getFileName());
-                            try {
-                                String className = path.toString()
-                                        .replace(folderPath + File.separator, "")
-                                        .replace(File.separator, ".")
-                                        .replace(".class", "");
-                                ClassInfo classInfo = extractClassInfo(path, logWriter);
-                                resultMap.put(className, classInfo);
-                            } catch (Exception e) {
-                                System.err.println("Error processing file: " + path.toString());
-                                e.printStackTrace();
-                            }
-                            return null;
-                        });
-                    });
+        // Create an inner class that extends ClassVisitor
+        classReader.accept(new ClassVisitor(Opcodes.ASM9) {
+            @Override
+            public MethodVisitor visitMethod(int access, String name, String descriptor, String signature, String[] exceptions) {
+                if ("<init>".equals(name)) { // Check for constructor
+                    List<String> formattedDependencies = formatDescriptor(descriptor);
+                    dependencies.addAll(formattedDependencies);
+                }
+                return super.visitMethod(access, name, descriptor, signature, exceptions);
+            }
+        }, 0);
 
-            // Invoke all tasks in parallel using the ForkJoinPool
-            forkJoinPool.invokeAll(tasks);
+        // Remove duplicates
+        return new ArrayList<>(new HashSet<>(dependencies)); 
+    }
+
+    private static List<String> formatDescriptor(String descriptor) {
+        List<String> paramsList = new ArrayList<>();
+        String[] paramTypes = descriptor.substring(1, descriptor.indexOf(')')).split(";");
+
+        for (String paramType : paramTypes) {
+            // Skip any parameter that starts with "Ljava/", is an array (starts with "["), is a primitive, or is a single letter
+            if (paramType.startsWith("Ljava/") || paramType.startsWith("[") || 
+                paramType.length() == 1 || 
+                paramType.startsWith("Z") || paramType.startsWith("I") || 
+                paramType.startsWith("C") || paramType.startsWith("J")) {
+                continue; // Skip this parameter entirely
+            }
+
+            // Check for types that include "L" (object types)
+            if (paramType.startsWith("L")) {
+                // Remove the leading "L" and replace slashes with dots
+                paramsList.add(paramType.substring(1).replace("/", "."));
+            } else if (!paramType.isEmpty()) {
+                paramsList.add(paramType); // Add primitive types as-is
+            }
         }
 
-        // Output results to JSON
+        return paramsList;
+    }
+
+    private static String getClassName(File classFile, String directoryPath) {
+        String relativePath = classFile.getAbsolutePath().substring(directoryPath.length() + 1);
+        return relativePath.replace(File.separator, ".").replace(".class", "");
+    }
+
+    private static void writeJsonToFile(Map<String, Object> dependenciesMap, String fileName) throws IOException {
+        // Create a Gson instance with pretty printing
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        try (FileWriter writer = new FileWriter("class_info.json")) {
-            gson.toJson(resultMap, writer);
+        String jsonOutput = gson.toJson(dependenciesMap);
+
+        try (FileWriter fileWriter = new FileWriter(fileName)) {
+            fileWriter.write(jsonOutput);
         }
-        long endTime = System.currentTimeMillis(); //end time
-        long duration = endTime - startTime; // total time took for this program
-
-        System.out.println("Class information saved to class_info.json");
-        System.out.println("javap output logged in " + LOG_FILE);
-        System.out.println("Time taken: " + (duration / 1000.0) + " seconds");
-    }
-
-    private static ClassInfo extractClassInfo(Path classFilePath, PrintWriter logWriter) throws IOException, InterruptedException {
-        Process process = Runtime.getRuntime().exec("javap -v " + classFilePath.toAbsolutePath());
-        BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-
-        // Precompiled regex patterns for efficiency
-        Pattern classPattern = Pattern.compile("([a-zA-Z_$][a-zA-Z\\d_$]*(?:\\.[a-zA-Z_$][a-zA-Z\\d_$]*)+)");
-        Pattern methodPattern = Pattern.compile("\\s*(public|protected|private|static|final|native|synchronized|abstract|transient|volatile)*\\s+([\\w<>\\[\\]]+)\\s+([\\w]+)\\(.*\\);");
-        Pattern fieldPattern = Pattern.compile("\\s*(public|protected|private|static|final|transient|volatile)*\\s+([\\w<>\\[\\]]+)\\s+([\\w]+);");
-
-        Set<String> dependencies = new HashSet<>();
-        List<String> methods = new ArrayList<>();
-        List<String> dataMembers = new ArrayList<>();
-
-        String line;
-        logWriter.println("Class: " + classFilePath.getFileName());
-        while ((line = reader.readLine()) != null) {
-            logWriter.println(line);
-
-            // Extract dependencies
-            Matcher classMatcher = classPattern.matcher(line);
-            while (classMatcher.find()) {
-                String dependency = classMatcher.group(1);
-                dependencies.add(dependency);
-            }
-
-            // Extract methods
-            Matcher methodMatcher = methodPattern.matcher(line);
-            if (methodMatcher.find()) {
-                String methodName = methodMatcher.group(3);
-                methods.add(methodName);
-            }
-
-            // Extract fields
-            Matcher fieldMatcher = fieldPattern.matcher(line);
-            if (fieldMatcher.find()) {
-                String fieldName = fieldMatcher.group(3);
-                dataMembers.add(fieldName);
-            }
-        }
-
-        process.waitFor();
-        logWriter.flush();
-
-        return new ClassInfo(methods, dataMembers, dependencies);
-    }
-
-    // Class to hold class details
-    private static class ClassInfo {
-        List<String> methods;
-        List<String> dataMembers;
-        Set<String> dependencies;
-
-        ClassInfo(List<String> methods, List<String> dataMembers, Set<String> dependencies) {
-            this.methods = methods;
-            this.dataMembers = dataMembers;
-            this.dependencies = dependencies;
-        }
+        System.out.println("Output written to " + fileName);
     }
 }
