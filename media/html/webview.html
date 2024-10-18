@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dependency Analysis</title>
+    <style>
+        body {
+            background-color: #ffffff;
+            color: #000000;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* Avoids scrollbars */
+        }
+        #content {
+            transform-origin: 0 0; /* Sets the zoom origin point */
+            transition: transform 0.2s ease-out; /* Smooth zoom transition */
+            padding: 20px;
+        }
+        h2 {
+            color: #333333;
+        }
+    </style>
+</head>
+<body>
+    <div id="content">
+        <h2>Here is one mermaid diagram:</h2>
+
+        <pre class="mermaid">
+            graph TD
+           
+            StrTokenizer --> StrMatcher
+           
+            ReflectionDiffBuilder --> ReflectionDiffBuilder
+            ReflectionDiffBuilder --> ToStringStyle
+            SimpleCollector --> SimpleCollector
+            InitializationTask --> BackgroundInitializer
+            StrBuilderTokenizer --> StrBuilder
+        </pre>
+    </div>
+
+    <!-- Mermaid script -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#000000',
+                primaryTextColor: '#000000',
+                edgeLabelBackground: '#ffffff',
+                arrowheadColor: '#000000'
+            }
+        });
+
+        let zoomScale = 1; // Default zoom scale
+        const content = document.getElementById('content');
+
+        // Add event listener for zooming
+        window.addEventListener('wheel', function(event) {
+            if (event.ctrlKey || event.metaKey) { // Check if Ctrl (or Command on Mac) is pressed
+                event.preventDefault();
+                
+                // Update the zoom scale based on wheel direction
+                if (event.deltaY < 0) {
+                    zoomScale += 0.1; // Zoom in
+                } else {
+                    zoomScale = Math.max(0.5, zoomScale - 0.1); // Zoom out (min scale: 0.5)
+                }
+                
+                // Apply the zoom scale to the content
+                content.style.transform = `scale(${zoomScale})`;
+            }
+        });
+    </script>
+</body>
+</html>
