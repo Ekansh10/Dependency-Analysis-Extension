@@ -1,22 +1,23 @@
 import * as vscode from 'vscode';
-export function showWebview(){
-    const panel=vscode.window.createWebviewPanel(
-        'webview','WebView Page',vscode.ViewColumn.One,{}
-    );
-    panel.webview.html=getWebView();
-}
+import * as fs from 'fs';
+import * as path from 'path';
 
-function getWebView():string{
-    return `
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Dependency Analysis</title>
-    </head>
-    <body>
-        <p>Dependency Analysis Tool</p>
-    </body>
-</html>`;
+export function showWebview(context: vscode.ExtensionContext) {
+    const panel = vscode.window.createWebviewPanel(
+        'webview',
+        'WebView Page',
+        vscode.ViewColumn.One,
+        {
+            enableScripts: true // Enable scripts to run in the webview
+        }
+    );
+
+    // Get the path to the webview.html file
+    const htmlFilePath = path.join(context.extensionPath, 'media', 'html', 'webview.html');
+
+    // Read the HTML content from the file
+    const htmlContent = fs.readFileSync(htmlFilePath, 'utf8');
+
+    // Set the HTML content to the webview
+    panel.webview.html = htmlContent;
 }
