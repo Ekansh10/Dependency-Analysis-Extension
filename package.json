@@ -34,11 +34,19 @@
     },
     "commands": [
       {
+        "command": "startWebview",
+        "title": "Start Webview"
+      },
+      {
+        "command": "startLocalServer",
+        "title": "Starting Local Server"
+      },
+      {
         "command": "selectRootProject",
         "title": "Selecting Root Project"
       },
       {
-        "command": "startProjectDetector",
+        "command": "startprojectdetector",
         "title": "Project Detecting"
       },
       {
@@ -60,8 +68,9 @@
     "test": "vscode-test"
   },
   "devDependencies": {
+    "@types/express": "^5.0.0",
     "@types/mocha": "^10.0.8",
-    "@types/node": "20.x",
+    "@types/node": "^20.16.13",
     "@types/vscode": "^1.93.0",
     "@typescript-eslint/eslint-plugin": "^8.7.0",
     "@typescript-eslint/parser": "^8.7.0",
@@ -71,6 +80,8 @@
     "typescript": "^5.6.2"
   },
   "dependencies": {
-    "dependency-analysis": "file:"
+    "axios": "^1.7.7",
+    "dependency-analysis": "file:",
+    "express": "^4.21.1"
   }
 }
