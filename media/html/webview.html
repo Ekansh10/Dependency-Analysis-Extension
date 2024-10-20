@@ -27,21 +27,14 @@
     <div id="content">
         <h2>Here is one mermaid diagram:</h2>
 
-        <pre class="mermaid">
-            graph TD
-           
-            StrTokenizer --> StrMatcher
-           
-            ReflectionDiffBuilder --> ReflectionDiffBuilder
-            ReflectionDiffBuilder --> ToStringStyle
-            SimpleCollector --> SimpleCollector
-            InitializationTask --> BackgroundInitializer
-            StrBuilderTokenizer --> StrBuilder
+        <pre class="mermaid" id="mermaid-diagram">
+            <!-- Mermaid code will be inserted here -->
         </pre>
+        
     </div>
 
     <!-- Mermaid script -->
-    <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@11.3.0/dist/mermaid.min.js"></script>
     <script>
         mermaid.initialize({
             startOnLoad: true,
@@ -73,6 +66,7 @@
                 content.style.transform = `scale(${zoomScale})`;
             }
         });
+
     </script>
 </body>
 </html>

@@ -1,0 +1,156 @@
+{
+  "projectName": "SampleProject",
+  "timestamp": "2024-10-20T18:24:43Z",
+  "packages": [
+    {
+      "com.example": {
+        "classes": [
+          {
+            "name": "ExampleClass",
+            "qualifiedName": "com.example.ExampleClass",
+            "modifiers": ["public"],
+            "isInnerClass": false,
+            "typeParameters": ["T", "U"],
+            "flags": {
+              "isAbstract": false,
+              "isStatic": false,
+              "isFinal": false,
+              "isInterface": false
+            },
+            "superclass": "java.lang.Object",
+            "interfaces": ["java.io.Serializable"],
+            "annotations": [
+              {
+                "name": "Deprecated",
+                "fullName": "java.lang.Deprecated",
+                "parameters": {}
+              }
+            ],
+            "fields": [
+              {
+                "name": "exampleField",
+                "type": "int",
+                "isArray": false,
+                "modifiers": ["private"],
+                "annotations": []
+              }
+            ],
+            "methods": [
+              {
+                "name": "exampleMethod",
+                "returnType": "void",
+                "modifiers": ["public"],
+                "flags": {
+                  "isAbstract": false,
+                  "isFinal": false,
+                  "isStatic": false
+                },
+                "parameters": [
+                  {
+                    "name": "param1",
+                    "type": "String",
+                    "isArray": false
+                  },
+                  {
+                    "name": "param2",
+                    "type": "int",
+                    "isArray": true
+                  }
+                ],
+                "exceptions": ["java.io.IOException"],
+                "annotations": []
+              }
+            ],
+            "constructors": [
+              {
+                "modifiers": ["public"],
+                "parameters": [
+                  {
+                    "name": "initValue",
+                    "type": "int",
+                    "isArray": false
+                  }
+                ],
+                "exceptions": [],
+                "annotations": []
+              }
+            ],
+            "dependencies": {
+              "incoming": [
+                {
+                  "className": "com.example.AnotherClass",
+                  "type": "USES"
+                }
+              ],
+              "outgoing": [
+                {
+                  "className": "java.util.List",
+                  "type": "IMPLEMENTS"
+                },
+                {
+                  "className": "java.io.IOException",
+                  "type": "THROWS"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "com.another.package": {
+        "classes": [
+          {
+            "name": "AnotherClass",
+            "qualifiedName": "com.another.package.AnotherClass",
+            "modifiers": ["public"],
+            "isInnerClass": false,
+            "typeParameters": [],
+            "flags": {
+              "isAbstract": false,
+              "isStatic": false,
+              "isFinal": false,
+              "isInterface": false
+            },
+            "superclass": "java.lang.Object",
+            "interfaces": [],
+            "annotations": [],
+            "fields": [],
+            "methods": [
+              {
+                "name": "anotherMethod",
+                "returnType": "int",
+                "modifiers": ["private"],
+                "flags": {
+                  "isAbstract": false,
+                  "isFinal": false,
+                  "isStatic": false
+                },
+                "parameters": [],
+                "exceptions": [],
+                "annotations": []
+              }
+            ],
+            "constructors": [
+              {
+                "modifiers": ["public"],
+                "parameters": [],
+                "exceptions": [],
+                "annotations": []
+              }
+            ],
+            "dependencies": {
+              "incoming": [],
+              "outgoing": [
+                {
+                  "className": "com.example.ExampleClass",
+                  "type": "USES"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

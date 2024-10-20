@@ -15,7 +15,7 @@ export function activate(context: vscode.ExtensionContext) {
             console.log('Start action logic implemented.');
             await selectRootFolder();
         }
-    });
+    
 
     // Command to show the webview
     
@@ -28,7 +28,7 @@ export function activate(context: vscode.ExtensionContext) {
     });
 
     // Add commands to the subscriptions
-    context.subscriptions.push(startCommand, startServerCommand);
+    context.subscriptions.push(startCommand, startServerCommand);});
 }
 
 export function deactivate() {

@@ -13,7 +13,7 @@ interface ProjectConfig {
 }
 
 export function projectDetector(rootFolder: string, projectConfig: ProjectConfig) {
-    vscode.commands.executeCommand('start project detector');
+ 
     for (const [projectType, { requiredFiles, matchAny }] of Object.entries(projectConfig)) {
         let allFilesExist = false;
 

@@ -22,27 +22,25 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.projectDetector = projectDetector;
-const fs = __importStar(require("fs"));
+exports.startLocalServer = startLocalServer;
+const express_1 = __importDefault(require("express"));
 const path = __importStar(require("path"));
-const vscode = __importStar(require("vscode"));
-function projectDetector(rootFolder, projectConfig) {
-    for (const [projectType, { requiredFiles, matchAny }] of Object.entries(projectConfig)) {
-        let allFilesExist = false;
-        if (matchAny) {
-            // If matchAny is true, check if at least one of the required files exists
-            allFilesExist = requiredFiles.some((file) => fs.existsSync(path.join(rootFolder, file)));
-        }
-        else {
-            // If matchAny is false or not provided, check if all files exist
-            allFilesExist = requiredFiles.every((file) => fs.existsSync(path.join(rootFolder, file)));
-        }
-        if (allFilesExist) {
-            vscode.window.showInformationMessage(`This is a ${projectType} project.`);
-            return;
-        }
-    }
-    vscode.window.showInformationMessage('Unknown project type.');
+function startLocalServer(port = 5000) {
+    const app = (0, express_1.default)();
+    // Serve static files (e.g., CSS, JS) from the 'media' directory
+    app.use(express_1.default.static(path.join(__dirname, '..', 'media')));
+    // Route for serving the HTML file
+    app.get('/', (req, res) => {
+        const htmlPath = path.join(__dirname, '..', 'media', 'html', 'webview.html');
+        res.sendFile(htmlPath);
+    });
+    // Start the server
+    app.listen(port, () => {
+        console.log(`Local server started at http://localhost:${port}`);
+    });
 }
-//# sourceMappingURL=projectDetector.js.map
+//# sourceMappingURL=server.js.map

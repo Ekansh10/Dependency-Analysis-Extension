@@ -28,21 +28,26 @@ exports.deactivate = deactivate;
 const vscode = __importStar(require("vscode"));
 const register_sidebar_1 = require("./views/register-sidebar");
 const selectFolder_1 = require("./projectTypes/selectFolder");
+const webview_1 = require("./views/webview");
+const server_1 = require("./server");
 function activate(context) {
     const op = vscode.window.createOutputChannel('Dependency Analysis');
-    // Register the web view provider
     (0, register_sidebar_1.registerWebViewProvider)(context, op);
-    // Register the command that will be called from the webview
+    // Command for selecting the root project
     const startCommand = vscode.commands.registerCommand('selectRootProject', async (flag) => {
         if (flag) {
-            // Implement your logic here when the start button is clicked
             console.log('Start action logic implemented.');
-            // Call the function to select the root folder
             await (0, selectFolder_1.selectRootFolder)();
         }
+        // Command to show the webview
+        (0, webview_1.showWebview)(context);
+        // Command to start the local server
+        const startServerCommand = vscode.commands.registerCommand('startLocalServer', () => {
+            (0, server_1.startLocalServer)(5000);
+        });
+        // Add commands to the subscriptions
+        context.subscriptions.push(startCommand, startServerCommand);
     });
-    // Add the command to context subscriptions for proper cleanup
-    context.subscriptions.push(startCommand);
 }
 function deactivate() {
     // Cleanup if necessary
