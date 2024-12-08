@@ -1,87 +1,104 @@
 {
-  "name": "dependency-analysis",
-  "displayName": "Dependency Analysis",
+  "name": "dependency-tree-view",
+  "displayName": "dependency-tree-view",
   "description": "",
   "version": "0.0.1",
   "engines": {
-    "vscode": "^1.93.0"
+    "vscode": "^1.94.0"
   },
   "categories": [
     "Other"
   ],
-  "activationEvents": [
-    "onCommand:selectRootProject"
-  ],
-  "main": "./out/extension.js",
+  "main": "./dist/extension.js",
   "contributes": {
-    "viewsContainers": {
-      "activitybar": [
-        {
-          "id": "dependencies",
-          "title": "Dependency Analysis",
-          "icon": "media/icon/dataflow.png"
-        }
-      ]
-    },
-    "views": {
-      "dependencies": [
-        {
-          "type": "webview",
-          "id": "dependencies-sidebar-panel",
-          "name": "Dependency Analysis"
-        }
-      ]
-    },
     "commands": [
       {
-        "command": "startWebview",
-        "title": "Start Webview"
+        "command": "dependency-tree-view.helloWorld",
+        "title": "Hello World"
       },
       {
-        "command": "startLocalServer",
-        "title": "Starting Local Server"
+        "command": "extension.showClassStructure",
+        "title": "Show Class Structure"
+      },
+      {
+        "command": "extension.navigateToDeclaration",
+        "title": "Navigate to Declaration"
+      },
+      {
+        "command": "extension.refreshStructure",
+        "title": "Refresh Structure"
+      },
+      {
+        "command": "extension.refreshPackageTree",
+        "title": "Refresh Package Tree"
+      },
+      {
+        "command": "extension.generateGraph",
+        "title": "Generate Graph"
+      },
+      {
+        "command": "extension.showGraphStructure",
+        "title": "Show Graph Structure"
       },
       {
         "command": "selectRootProject",
-        "title": "Selecting Root Project"
+        "title": "Select Root Project"
       },
       {
-        "command": "startprojectdetector",
-        "title": "Project Detecting"
-      },
-      {
-        "command": "detectAndroidProject",
-        "title": "Detecting Android Project"
-      },
-      {
-        "command": "detectMavenProject",
-        "title": "Detecting Maven Project"
+        "command": "extension.runParser",
+        "title": "Run Parser"
       }
-    ]
+    ],
+    "views": {
+     "package-tree-sideview": [
+      {
+        "type": "webview",
+        "id": "dependencies-sidebar-panel",
+        "name": "Start"
+      },
+      {
+        "id": "dependencyView",
+        "name": "Dependency View"
+      },
+      {
+        "id": "classStructure",
+        "name": "Class Structure"
+      }
+     ]
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "package-tree-sideview",
+          "title": "Package Tree",
+          "icon": "media/icon/dataflow.png"
+        }
+      ]
+    }
   },
   "scripts": {
-    "vscode:prepublish": "npm run compile",
-    "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./",
-    "pretest": "npm run compile && npm run lint",
-    "lint": "eslint src",
+    "vscode:prepublish": "npm run package",
+    "compile": "webpack",
+    "watch": "webpack --watch",
+    "package": "webpack --mode production --devtool hidden-source-map",
+    "compile-tests": "tsc -p . --outDir out",
+    "watch-tests": "tsc -p . -w --outDir out",
+    "pretest": "npm run compile-tests && npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
     "test": "vscode-test"
   },
   "devDependencies": {
-    "@types/express": "^5.0.0",
-    "@types/mocha": "^10.0.8",
-    "@types/node": "^20.16.13",
-    "@types/vscode": "^1.93.0",
-    "@typescript-eslint/eslint-plugin": "^8.7.0",
-    "@typescript-eslint/parser": "^8.7.0",
-    "@vscode/test-cli": "^0.0.10",
-    "@vscode/test-electron": "^2.4.1",
-    "eslint": "^9.11.1",
-    "typescript": "^5.6.2"
-  },
-  "dependencies": {
-    "axios": "^1.7.7",
-    "dependency-analysis": "file:",
-    "express": "^4.21.1"
+    "@types/vscode": "^1.94.0",
+    "@types/mocha": "^10.0.7",
+    "@types/node": "20.x",
+    "@typescript-eslint/eslint-plugin": "^7.14.1",
+    "@typescript-eslint/parser": "^7.11.0",
+    "eslint": "^8.57.0",
+    "typescript": "^5.4.5",
+    "ts-loader": "^9.5.1",
+    "webpack": "^5.92.1",
+    "webpack-cli": "^5.1.4",
+    "@vscode/test-cli": "^0.0.9",
+    "@vscode/test-electron": "^2.4.0"
   }
 }

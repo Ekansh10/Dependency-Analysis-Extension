@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dependency Analysis</title>
+    <title>Class Diagram</title>
     <style>
         body {
             background-color: #ffffff;
@@ -11,62 +11,149 @@
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            overflow: hidden; /* Avoids scrollbars */
+            overflow: hidden; /* Prevent double scrollbars */
+        }
+        #scroll-container {
+            width: 100vw;
+            height: 100vh;
+            overflow: auto;
+            position: relative;
         }
         #content {
-            transform-origin: 0 0; /* Sets the zoom origin point */
-            transition: transform 0.2s ease-out; /* Smooth zoom transition */
             padding: 20px;
+            transform-origin: 0 0;
+            transition: transform 0.2s ease-out;
+            min-width: fit-content; /* Ensure content doesn't shrink below its natural size */
         }
-        h2 {
-            color: #333333;
+        #zoom-controls {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            z-index: 1000;
+            display: flex;
+            gap: 10px;
+        }
+        button {
+            padding: 5px 10px;
+            cursor: pointer;
+            background: #f0f0f0;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+        button:hover {
+            background: #e0e0e0;
+        }
+        .zoom-level {
+            display: inline-block;
+            min-width: 60px;
+            text-align: center;
+            line-height: 28px;
         }
     </style>
 </head>
 <body>
-    <div id="content">
-        <h2>Here is one mermaid diagram:</h2>
-
-        <pre class="mermaid" id="mermaid-diagram">
-            <!-- Mermaid code will be inserted here -->
-        </pre>
-        
+    <div id="scroll-container">
+        <div id="content">
+            <pre class="mermaid">
+                DIAGRAM_PLACEHOLDER
+            </pre>
+        </div>
     </div>
 
-    <!-- Mermaid script -->
+    <div id="zoom-controls">
+        <button onclick="zoomOut()">−</button>
+        <span class="zoom-level">100%</span>
+        <button onclick="zoomIn()">+</button>
+        <button onclick="resetZoom()">Reset</button>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/mermaid@11.3.0/dist/mermaid.min.js"></script>
     <script>
+        // Initialize Mermaid
         mermaid.initialize({
-            startOnLoad: true,
-            theme: 'default',
-            themeVariables: {
-                primaryColor: '#000000',
-                primaryTextColor: '#000000',
-                edgeLabelBackground: '#ffffff',
-                arrowheadColor: '#000000'
-            }
-        });
+    startOnLoad: true,
+    theme: 'default',
+    securityLevel: 'loose',
+    classDiagram: {
+        useMaxWidth: false,
+        wrap: false
+    }
+});
 
-        let zoomScale = 1; // Default zoom scale
+        // Zoom functionality
+        let zoomScale = 1;
         const content = document.getElementById('content');
+        const zoomLevel = document.querySelector('.zoom-level');
+        const MIN_ZOOM = 0.5;
+        const MAX_ZOOM = 3;
+        const ZOOM_STEP = 0.1;
 
-        // Add event listener for zooming
+        function updateZoom() {
+            content.style.transform = `scale(${zoomScale})`;
+            zoomLevel.textContent = `${Math.round(zoomScale * 100)}%`;
+        }
+
+        function zoomIn() {
+            if (zoomScale < MAX_ZOOM) {
+                zoomScale = Math.min(MAX_ZOOM, zoomScale + ZOOM_STEP);
+                updateZoom();
+            }
+        }
+
+        function zoomOut() {
+            if (zoomScale > MIN_ZOOM) {
+                zoomScale = Math.max(MIN_ZOOM, zoomScale - ZOOM_STEP);
+                updateZoom();
+            }
+        }
+
+        function resetZoom() {
+            zoomScale = 1;
+            updateZoom();
+        }
+
+        // Mouse wheel zoom
         window.addEventListener('wheel', function(event) {
-            if (event.ctrlKey || event.metaKey) { // Check if Ctrl (or Command on Mac) is pressed
+            if (event.ctrlKey || event.metaKey) {
                 event.preventDefault();
                 
-                // Update the zoom scale based on wheel direction
                 if (event.deltaY < 0) {
-                    zoomScale += 0.1; // Zoom in
+                    zoomIn();
                 } else {
-                    zoomScale = Math.max(0.5, zoomScale - 0.1); // Zoom out (min scale: 0.5)
+                    zoomOut();
                 }
-                
-                // Apply the zoom scale to the content
-                content.style.transform = `scale(${zoomScale})`;
             }
+        }, { passive: false });
+
+        // Track scroll position relative to zoom origin
+        let lastScrollX = 0;
+        let lastScrollY = 0;
+        const scrollContainer = document.getElementById('scroll-container');
+
+        scrollContainer.addEventListener('scroll', function() {
+            lastScrollX = this.scrollLeft;
+            lastScrollY = this.scrollTop;
         });
 
+        // Keyboard shortcuts for zoom
+        document.addEventListener('keydown', function(event) {
+            if (event.ctrlKey || event.metaKey) {
+                if (event.key === '=' || event.key === '+') {
+                    event.preventDefault();
+                    zoomIn();
+                } else if (event.key === '-') {
+                    event.preventDefault();
+                    zoomOut();
+                } else if (event.key === '0') {
+                    event.preventDefault();
+                    resetZoom();
+                }
+            }
+        });
     </script>
 </body>
 </html>

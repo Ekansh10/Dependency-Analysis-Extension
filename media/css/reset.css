@@ -28,3 +28,22 @@ img {
 	max-width: 100%;
 	height: auto;
 }
+
+/* Hide all nested elements by default */
+.nested {
+    display: none;
+}
+
+.nested.active {
+    display: block;
+}
+
+/* Style for the toggle buttons */
+.tree-toggle {
+    cursor: pointer;
+    margin-right: 5px;
+    font-weight: bold;
+}
+.class-name {
+    cursor: pointer;
+}

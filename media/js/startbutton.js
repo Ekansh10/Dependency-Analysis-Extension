@@ -1,22 +1,15 @@
-(function() {
+(function () {
     document.addEventListener('DOMContentLoaded', function () {
-        const vscode = acquireVsCodeApi();
-        const startbtn = document.querySelector('.start-btn');
-        console.log('Script loaded and running');
-        console.log('Start button found');
+        const vscode = acquireVsCodeApi(); // Initialize VS Code API
+        const startBtn = document.querySelector('.start-btn');
 
-        if (startbtn) {
-            startbtn.addEventListener('click', startbtnclicked);
+        // Initialize button event listeners
+        if (startBtn) {
+            startBtn.addEventListener('click', () => {
+                vscode.postMessage({ type: 'start-btn' });
+            });
         } else {
             console.error('Start button not found');
         }
-
-        function startbtnclicked() {
-            console.log('Start button clicked');
-            vscode.postMessage({
-                type: 'start-btn',
-                value: 'started'
-            });
-        }
-    });
-})();
+    }       
+)})();
