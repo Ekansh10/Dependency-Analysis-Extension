@@ -27,9 +27,7 @@ export async function selectRootFolder() {
         vscode.window.showInformationMessage(`Using workspace folder: ${rootFolder}`);
     }
 
-    console.log('Root folder:', rootFolder);
-
-    const configPath = path.join(__dirname,'..', '..', 'src','projectTypes', 'projectConfig.json');
+    const configPath = path.join(__dirname, '..', 'src', 'projectTypes', 'projectConfig.json');
     if (!fs.existsSync(configPath)) {
         vscode.window.showErrorMessage('Project configuration file not found.');
         return;
@@ -37,7 +35,5 @@ export async function selectRootFolder() {
 
     const configContent = fs.readFileSync(configPath, 'utf-8');
     const projectConfig = JSON.parse(configContent);
-
-    // Detect project type
     projectDetector(rootFolder, projectConfig);
 }

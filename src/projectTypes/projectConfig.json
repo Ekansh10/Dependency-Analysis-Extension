@@ -5,12 +5,20 @@
           "build.gradle.kts",
           "app/src/main/AndroidManifest.xml"
       ],
-      "matchAny": true
+      "matchAny": false
   },
   "Maven": {
       "requiredFiles": [
           "pom.xml"
+          
       ]
+  },
+  "Gradle": {
+    "requiredFiles": [
+        "build.gradle",
+        "build.gradle.kts"
+    ],
+    "matchAny": true
   },
   "Java": {
       "requiredFiles": [

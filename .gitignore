@@ -1,1 +1,3 @@
-node_modules/
+/.vscode-test.mjs
+/node_modules
+/vsc-extension-quickstart.md
