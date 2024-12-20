@@ -1,71 +1,25 @@
-# dependency-tree-view README
+# 📦 Dependency Analytics Extension
 
-This is the README for your extension "dependency-tree-view". After writing up a brief description, we recommend including the following sections.
-
-## Features
-
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
-
-For example if there is an image subfolder under your extension project workspace:
-
-\!\[feature X\]\(images/feature-x.png\)
-
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
-
-## Requirements
-
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
-
-## Extension Settings
-
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
-
-For example:
-
-This extension contributes the following settings:
-
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
-
-## Known Issues
-
-Calling out known issues can help limit users opening duplicate issues against your extension.
-
-## Release Notes
-
-Users appreciate release notes as you update your extension.
-
-### 1.0.0
-
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
+🚀 **Dependency Analytics** is a powerful VS Code extension designed to help developers visualize and manage complex project dependencies. With features like dependency graphs, method-level navigation, and type detection for Java projects, this extension simplifies understanding and debugging your codebase.
 
 ---
 
-## Following extension guidelines
+## 🖼️ Features
 
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
+- 🎯 **Dependency Graph Visualization**: Automatically generate a dependency graph from your Java project.
+- 🔍 **Method-Level Navigation**: Click on graph nodes to navigate directly to the corresponding file and line in your project.
+- 📂 **Project Type Detection**: Identify if a project is Android, Maven, or a standard Java project.
+- ⚡ **Optimized Workflow**: Streamline development with easy-to-use tools and intuitive UI elements.
 
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
+---
 
-## Working with Markdown
+## 🚀 Usage
 
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
+1. Click on the **Dependency Analytics** icon in the sidebar.
+2. Press the **Start** button in the walkthrough window.
+3. Select a folder containing your Java project.
+4. View the generated dependency graph and explore the mappings.
 
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
+📌 **Tip**: Use the graph to navigate through your project by clicking on nodes representing methods or classes.
 
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+---
