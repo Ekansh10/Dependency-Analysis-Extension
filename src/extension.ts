@@ -8,7 +8,7 @@ import { JavaPackageTreeProvider } from './views/tree/javaPackageTreeProvider';
 import { ClassStructureProvider } from './views/tree/classStructure';
 import { PackageTreeProvider } from './views/tree/packageTree';
 import { Element, Field, Method } from './views/tree/tokens/root';
-import showGraph from './graphGeneration.ts/showGraph';
+import showGraph from './graphGeneration/showGraph';
 import { ElementItem } from './views/tree/item';
 
 export function activate(context: vscode.ExtensionContext) {
