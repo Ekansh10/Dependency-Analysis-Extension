@@ -22,8 +22,10 @@
     },
     "Java": {
         "requiredFiles": [
-            "src/main/java"
-        ]
+            "src/main/java",
+            "src/"
+        ],
+        "matchAny":true
     }
   }
   

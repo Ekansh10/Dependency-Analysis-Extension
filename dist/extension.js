@@ -35,27 +35,44 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.activate = activate;
 exports.deactivate = deactivate;
 const vscode = __importStar(__webpack_require__(1));
-const selectFolder_1 = __webpack_require__(2);
+const path = __importStar(__webpack_require__(2));
+const fs = __importStar(__webpack_require__(3));
+const selectFolder_1 = __webpack_require__(4);
 const javaParser_1 = __webpack_require__(6);
-const register_sidebar_1 = __webpack_require__(8);
-const classStructure_1 = __webpack_require__(9);
-const packageTree_1 = __webpack_require__(10);
-const showGraph_1 = __importDefault(__webpack_require__(11));
+const classStructure_1 = __webpack_require__(8);
+const packageTree_1 = __webpack_require__(9);
+const showGraph_1 = __importDefault(__webpack_require__(10));
 function activate(context) {
     const op = vscode.window.createOutputChannel('Dependency Analysis');
     console.log("Welcome to my extension");
-    (0, register_sidebar_1.registerWebViewProvider)(context, op);
     const structureProvider = new classStructure_1.ClassStructureProvider();
     const rootPath = vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders.length > 0 ? vscode.workspace.workspaceFolders[0].uri.fsPath : '.';
     const packageTreeProvider = new packageTree_1.PackageTreeProvider('./dependencies.json', rootPath);
     vscode.window.registerTreeDataProvider('dependencyView', packageTreeProvider);
     vscode.window.registerTreeDataProvider('classStructure', structureProvider);
-    context.subscriptions.push(vscode.commands.registerCommand('selectRootProject', async (buttonClickedFlag) => {
+    const workspaceFolders = vscode.workspace.workspaceFolders;
+    if (!workspaceFolders) {
+        vscode.window.showErrorMessage('Please open a workspace folder to use this extension.');
+        return;
+    }
+    const workspaceRoot = workspaceFolders[0].uri.fsPath;
+    const dependenciesPath = path.join(workspaceRoot, '.vscode', 'dependencies.json');
+    context.subscriptions.push(vscode.commands.registerCommand('startProject', async () => {
         console.log("project started");
-        if (buttonClickedFlag) {
-            await (0, selectFolder_1.selectRootFolder)();
+        if (!fs.existsSync(dependenciesPath)) {
+            vscode.window.showInformationMessage('dependencies.json not found. Running the extension logic...');
+            (0, selectFolder_1.selectRootFolder)();
+        }
+        else {
+            vscode.window.showInformationMessage('dependencies.json exists.');
         }
     }));
+    vscode.commands.executeCommand('startProject');
+    const fileWatcher = vscode.workspace.onDidSaveTextDocument((document) => {
+        vscode.commands.executeCommand('extension.runParser', workspaceRoot);
+        vscode.commands.executeCommand('extension.refreshPackageTree');
+    });
+    context.subscriptions.push(fileWatcher);
     context.subscriptions.push(vscode.commands.registerCommand('extension.runParser', async (workspaceFolder, type) => {
         await (0, javaParser_1.runJavaParser)(workspaceFolder, type);
         return Promise.resolve();
@@ -116,6 +133,18 @@ module.exports = require("vscode");
 
 /***/ }),
 /* 2 */
+/***/ ((module) => {
+
+module.exports = require("path");
+
+/***/ }),
+/* 3 */
+/***/ ((module) => {
+
+module.exports = require("fs");
+
+/***/ }),
+/* 4 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -146,7 +175,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.selectRootFolder = selectRootFolder;
 const vscode = __importStar(__webpack_require__(1));
 const fs = __importStar(__webpack_require__(3));
-const path = __importStar(__webpack_require__(4));
+const path = __importStar(__webpack_require__(2));
 const projectDetector_1 = __webpack_require__(5);
 async function selectRootFolder() {
     const workspaceFolders = vscode.workspace.workspaceFolders;
@@ -181,18 +210,6 @@ async function selectRootFolder() {
 
 
 /***/ }),
-/* 3 */
-/***/ ((module) => {
-
-module.exports = require("fs");
-
-/***/ }),
-/* 4 */
-/***/ ((module) => {
-
-module.exports = require("path");
-
-/***/ }),
 /* 5 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
@@ -223,7 +240,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.projectDetector = projectDetector;
 const fs = __importStar(__webpack_require__(3));
-const path = __importStar(__webpack_require__(4));
+const path = __importStar(__webpack_require__(2));
 const vscode = __importStar(__webpack_require__(1));
 function projectDetector(rootFolder, projectConfig) {
     console.log("Project detector called");
@@ -285,7 +302,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.runJavaParser = runJavaParser;
 const vscode = __importStar(__webpack_require__(1));
 const cp = __importStar(__webpack_require__(7));
-const path = __importStar(__webpack_require__(4));
+const path = __importStar(__webpack_require__(2));
 const fs = __importStar(__webpack_require__(3));
 // import { generateMappings } from '../graphGeneration/mappingsGeneration/mappingGenerator';
 // This function runs the Java parser
@@ -358,73 +375,6 @@ module.exports = require("child_process");
 
 /***/ }),
 /* 8 */
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.SidebarWebViewProvider = void 0;
-exports.registerWebViewProvider = registerWebViewProvider;
-const vscode_1 = __webpack_require__(1);
-function registerWebViewProvider(context, op) {
-    const provider = new SidebarWebViewProvider(context.extensionUri, context);
-    context.subscriptions.push(vscode_1.window.registerWebviewViewProvider("dependencies-sidebar-panel", provider));
-    return provider; // Return the provider to access later
-}
-class SidebarWebViewProvider {
-    _extensionUri;
-    extensionContext;
-    constructor(_extensionUri, extensionContext) {
-        this._extensionUri = _extensionUri;
-        this.extensionContext = extensionContext;
-    }
-    view; // Keep a reference to the active webview view
-    resolveWebviewView(webviewView, webViewContext, token) {
-        this.view = webviewView; // Store the reference when resolved
-        webviewView.webview.options = {
-            enableScripts: true,
-            localResourceRoots: [this._extensionUri],
-        };
-        webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
-        webviewView.webview.onDidReceiveMessage(async (data) => {
-            switch (data.type) {
-                case "start-btn": {
-                    console.log("Button clicked - Start button action initiated");
-                    await vscode_1.commands.executeCommand("selectRootProject", true);
-                }
-            }
-        });
-    }
-    _getHtmlForWebview(webview) {
-        const styleResetUri = webview.asWebviewUri(vscode_1.Uri.joinPath(this._extensionUri, "media", "css", "reset.css"));
-        const scriptUri = webview.asWebviewUri(vscode_1.Uri.joinPath(this._extensionUri, "media", "js", "startbutton.js"));
-        const styleVSCodeUri = webview.asWebviewUri(vscode_1.Uri.joinPath(this._extensionUri, "media", "css", "vscode.css"));
-        return `<!DOCTYPE html>
-        <html lang="en">
-            <head>
-              <meta charset="UTF-8">
-              <meta name="viewport" content="width=device-width, initial-scale=1.0">
-              <meta http-equiv="Content-Security-Policy" content="
-                default-src 'none';
-                img-src ${webview.cspSource} https:;
-                script-src 'unsafe-inline' ${webview.cspSource};
-                style-src ${webview.cspSource} 'unsafe-inline';">
-              <link href="${styleResetUri}" rel="stylesheet">
-              <link href="${styleVSCodeUri}" rel="stylesheet">
-           </head>
-           <body>
-              <div>Action buttons:</div>
-              <button type="button" class="start-btn">Start</button>
-              <div id="tree-container"></div>
-              <script src="${scriptUri}"></script>
-           </body>
-        </html>`;
-    }
-}
-exports.SidebarWebViewProvider = SidebarWebViewProvider;
-
-
-/***/ }),
-/* 9 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -454,7 +404,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.formatName = exports.ClassStructureProvider = void 0;
 const vscode = __importStar(__webpack_require__(1));
-const path = __importStar(__webpack_require__(4));
+const path = __importStar(__webpack_require__(2));
 class ClassStructureProvider {
     _onDidChangeTreeData = new vscode.EventEmitter();
     constructor() {
@@ -574,7 +524,7 @@ exports.formatName = formatName;
 
 
 /***/ }),
-/* 10 */
+/* 9 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -605,8 +555,8 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.PackageTreeProvider = void 0;
 const vscode = __importStar(__webpack_require__(1));
 const fs = __importStar(__webpack_require__(3));
-const path = __importStar(__webpack_require__(4));
-const classStructure_1 = __webpack_require__(9);
+const path = __importStar(__webpack_require__(2));
+const classStructure_1 = __webpack_require__(8);
 class PackageTreeProvider {
     workSpaceRoot;
     _onDidChangeTreeData = new vscode.EventEmitter();
@@ -666,7 +616,7 @@ class ElementItem extends vscode.TreeItem {
 
 
 /***/ }),
-/* 11 */
+/* 10 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -700,9 +650,9 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports["default"] = showGraph;
 const vscode = __importStar(__webpack_require__(1));
 const fs_1 = __importDefault(__webpack_require__(3));
-const path_1 = __importDefault(__webpack_require__(4));
-const listClasses_1 = __importDefault(__webpack_require__(12));
-const mermaid_1 = __importDefault(__webpack_require__(13));
+const path_1 = __importDefault(__webpack_require__(2));
+const listClasses_1 = __importDefault(__webpack_require__(11));
+const mermaid_1 = __importDefault(__webpack_require__(12));
 async function showGraph(context, item) {
     const panel = vscode.window.createWebviewPanel('classDiagram', 'Class Diagram', vscode.ViewColumn.One, { enableScripts: true });
     const workspace = vscode.workspace.workspaceFolders;
@@ -724,7 +674,7 @@ async function showGraph(context, item) {
 
 
 /***/ }),
-/* 12 */
+/* 11 */
 /***/ ((__unused_webpack_module, exports) => {
 
 
@@ -749,7 +699,7 @@ function findElementsWithClassName(element) {
 
 
 /***/ }),
-/* 13 */
+/* 12 */
 /***/ ((__unused_webpack_module, exports) => {
 
 
