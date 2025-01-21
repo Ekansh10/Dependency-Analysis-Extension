@@ -3,7 +3,7 @@ import * as path from 'path';
 import * as fs from 'fs'
 import { selectRootFolder } from './projectTypes/selectFolder';
 import { runJavaParser } from './parser/javaParser';
-import { registerWebViewProvider } from './views/sidebar/register-sidebar';
+
 import { JavaPackageTreeProvider } from './views/tree/javaPackageTreeProvider';
 import { ClassStructureProvider } from './views/tree/classStructure';
 import { PackageTreeProvider } from './views/tree/packageTree';
@@ -15,7 +15,7 @@ export function activate(context: vscode.ExtensionContext) {
     const op = vscode.window.createOutputChannel('Dependency Analysis');
    console.log("Welcome to my extension");
 
-    registerWebViewProvider(context,op);
+
 
     const structureProvider = new ClassStructureProvider();
 	const rootPath = vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders.length > 0 ? vscode.workspace.workspaceFolders[0].uri.fsPath : '.';
@@ -23,15 +23,37 @@ export function activate(context: vscode.ExtensionContext) {
 	vscode.window.registerTreeDataProvider('dependencyView', packageTreeProvider);
 	vscode.window.registerTreeDataProvider('classStructure', structureProvider);
 	
-    
-    context.subscriptions.push(
-        vscode.commands.registerCommand('selectRootProject',async (buttonClickedFlag : boolean)=>{
+    const workspaceFolders = vscode.workspace.workspaceFolders;
+    if (!workspaceFolders) {
+        vscode.window.showErrorMessage('Please open a workspace folder to use this extension.');
+        return;
+    }
+
+    const workspaceRoot = workspaceFolders[0].uri.fsPath;
+    const dependenciesPath = path.join(workspaceRoot,'.vscode' ,'dependencies.json');
+
+
+	context.subscriptions.push(
+        vscode.commands.registerCommand('startProject',async ()=>{
 			console.log("project started");
-            if(buttonClickedFlag){
-                await selectRootFolder();
-            }
+            
+			if (!fs.existsSync(dependenciesPath)) {
+				vscode.window.showInformationMessage('dependencies.json not found. Running the extension logic...');
+				selectRootFolder();
+			} else {
+				vscode.window.showInformationMessage('dependencies.json exists.');
+			}
+            
         })
     );
+	vscode.commands.executeCommand('startProject');
+
+	const fileWatcher = vscode.workspace.onDidSaveTextDocument((document) => {
+        vscode.commands.executeCommand('extension.runParser',workspaceRoot);
+		vscode.commands.executeCommand('extension.refreshPackageTree');
+    });
+ 	context.subscriptions.push(fileWatcher);
+    
 
     context.subscriptions.push(vscode.commands.registerCommand('extension.runParser',async (workspaceFolder:string,type:string)=>{
         await runJavaParser(workspaceFolder,type);

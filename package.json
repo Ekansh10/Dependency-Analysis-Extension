@@ -17,6 +17,10 @@
         "title": "Hello World"
       },
       {
+        "command": "startProject",
+        "title": "Start the Project"
+      },
+      {
         "command": "extension.showClassStructure",
         "title": "Show Class Structure"
       },
@@ -51,11 +55,6 @@
     ],
     "views": {
      "package-tree-sideview": [
-      {
-        "type": "webview",
-        "id": "dependencies-sidebar-panel",
-        "name": "Start"
-      },
       {
         "id": "dependencyView",
         "name": "Dependency View"
