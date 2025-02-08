@@ -49,15 +49,13 @@ async function selectRootFolder() {
         rootFolder = workspaceFolders[0].uri.fsPath;
         vscode.window.showInformationMessage(`Using workspace folder: ${rootFolder}`);
     }
-    console.log('Root folder:', rootFolder);
-    const configPath = path.join(__dirname, '..', '..', 'src', 'projectTypes', 'projectConfig.json');
+    const configPath = path.join(__dirname, '..', 'src', 'projectTypes', 'projectConfig.json');
     if (!fs.existsSync(configPath)) {
         vscode.window.showErrorMessage('Project configuration file not found.');
         return;
     }
     const configContent = fs.readFileSync(configPath, 'utf-8');
     const projectConfig = JSON.parse(configContent);
-    // Detect project type
     (0, projectDetector_1.projectDetector)(rootFolder, projectConfig);
 }
 //# sourceMappingURL=selectFolder.js.map

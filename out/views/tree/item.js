@@ -22,25 +22,32 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.startLocalServer = startLocalServer;
-const express_1 = __importDefault(require("express"));
-const path = __importStar(require("path"));
-function startLocalServer(port = 5000) {
-    const app = (0, express_1.default)();
-    // Serve static files (e.g., CSS, JS) from the 'media' directory
-    app.use(express_1.default.static(path.join(__dirname, '..', 'media')));
-    // Route for serving the HTML file
-    app.get('/', (req, res) => {
-        const htmlPath = path.join(__dirname, '..', 'media', 'html', 'webview.html');
-        res.sendFile(htmlPath);
-    });
-    // Start the server
-    app.listen(port, () => {
-        console.log(`Local server started at http://localhost:${port}`);
-    });
+exports.ElementItem = void 0;
+const vscode = __importStar(require("vscode"));
+const classStructure_1 = require("./classStructure");
+class ElementItem extends vscode.TreeItem {
+    label;
+    element;
+    collapsibleState;
+    constructor(label, element, collapsibleState) {
+        super(element.name, collapsibleState);
+        this.label = label;
+        this.element = element;
+        this.collapsibleState = collapsibleState;
+        this.tooltip = `${this.element.name}`;
+        this.description = element.class ? 'Class' : 'Package';
+        if (element.class) {
+            this.command = {
+                command: 'extension.showGraphStructure',
+                title: 'Show Graph Structure',
+                arguments: [element]
+            };
+        }
+    }
+    getChildren() {
+        return this.element.elements.map((elem) => new ElementItem((0, classStructure_1.formatName)(elem.name), elem, elem.elements.length > 0 ? vscode.TreeItemCollapsibleState.Expanded : vscode.TreeItemCollapsibleState.None));
+    }
 }
-//# sourceMappingURL=server.js.map
+exports.ElementItem = ElementItem;
+//# sourceMappingURL=item.js.map
